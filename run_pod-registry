@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+import os
+import time
+import subprocess
+
+pod_name = "containers.mikaelhelin.com"
+container_name = pod_name + "-registry"
+lock_file = "/home/registry/containers.mikaelhelin.com/.lock"
+subprocess.run(["touch", lock_file])
+
+def pod_exists():
+    return subprocess.run(["podman", "pod", "exists", pod_name]).returncode == 0
+
+def create_pod():
+    subprocess.run(["podman", "pod", "create", "-p", "5000:5000", pod_name])
+
+def is_pod_running():
+    output = subprocess.run(["podman", "pod", "ls", "--format", "{{.Name}}::{{.Status}}\n"], capture_output=True, text=True)
+    pods = output.stdout.strip().split("\n")
+    for pod in pods:
+        temp = pod.split("::")
+        if temp[0] == pod_name and temp[1] == "Running":
+            return True
+    return False
+
+def start_pod():
+    subprocess.run(["podman", "pod", "start", pod_name])
+
+def stop_pod():
+    subprocess.run(["podman", "pod", "stop", pod_name])
+
+def container_exists():
+    return subprocess.run(["podman", "container", "exists", container_name]).returncode == 0
+
+def create_container():
+    subprocess.run([
+        "podman", "run", "--name", container_name, "--restart=always",
+        "--pod", pod_name,
+        "-v", "/home/registry/DATA/opt/registry/data:/var/lib/registry:Z",
+        "-v", "/home/registry/DATA/opt/registry/auth:/auth:Z",
+        "-e", "REGISTRY_AUTH=htpasswd",
+        "-e", "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm",
+        "-e", "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd",
+        "-v", "/home/registry/DATA/opt/registry/certs:/certs:Z",
+        "-e", "REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true",
+        "-d", "docker.io/library/registry:latest"
+    ])
+
+while os.path.isfile(lock_file):
+    if not pod_exists():
+        create_pod()
+    else:
+        if not container_exists():
+            create_container()
+        else:
+            if not is_pod_running():
+                start_pod()
+            else:
+                time.sleep(9)
+    time.sleep(1)
+
+stop_pod()
