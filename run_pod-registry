@@ -36,8 +36,8 @@ def create_container():
     result = subprocess.run([
         "podman", "run", "--name", container_name, "--restart=always",
         "--pod", pod_name,
-        "-v", "/home/registry/DATA/opt/registry/data:/var/lib/registry:Z",
-        "-v", "/home/registry/DATA/opt/registry/auth:/auth:Z",
+        "-v", "/home/registry/" + pod_name + "/DATA/opt/registry/data:/var/lib/registry:Z",
+        "-v", "/home/registry/" + pod_name + "/DATA/opt/registry/auth:/auth:Z",
         "-e", "REGISTRY_AUTH=htpasswd",
         "-e", "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm",
         "-e", "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd",
