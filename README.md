@@ -9,6 +9,8 @@ As root, install some packages
     yum install -y httpd-tools podman buildah skopeo
     chmod 777 /var/lib/containers/sigstore
 
+the package container-tools may not exists, try skip it.
+
 Installation of SSL is not done here, not in the registry container, but instead it is done in the Nginx reverse proxy container. Since we will use the HTTP protocol with Nginx for SSL termination, we need to configure the registry to approve insecure traffic.
 
     cat << 'EOF' > /etc/containers/registries.conf
@@ -39,6 +41,7 @@ create a user with password, you need to enter the same password twice manually
 
 Put the file run_pod-registry into the folder /home/registry/containers.mikaelhelin.com and chmod it
 
+    wget https://raw.githubusercontent.com/Mikael-Helin/Podman_Local_Registry/main/run_pod-registry
     chmod +x run_pod-registry
 
 then become root and install the systemd file
