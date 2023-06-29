@@ -55,7 +55,7 @@ then become root and install the systemd file
     [Service]
     User=registry
     Restart=always
-    ExecStart=/usr/bin/bash /home/registry/containers.mikaelhelin.com/run_registry.sh
+    ExecStart=/usr/bin/bash /home/registry/containers.mikaelhelin.com/run_pod-registry.sh
     ExecStop=/usr/bin/rm /home/registry/containers.mikaelhelin.com/.lock
 
     [Install]
