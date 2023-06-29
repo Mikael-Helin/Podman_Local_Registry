@@ -33,7 +33,7 @@ def container_exists():
     return subprocess.run(["podman", "container", "exists", container_name]).returncode == 0
 
 def create_container():
-    subprocess.run([
+    result = subprocess.run([
         "podman", "run", "--name", container_name, "--restart=always",
         "--pod", pod_name,
         "-v", "/home/registry/DATA/opt/registry/data:/var/lib/registry:Z",
@@ -45,6 +45,10 @@ def create_container():
         "-e", "REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true",
         "-d", "docker.io/library/registry:latest"
     ])
+    if result.returncode != 0:
+        print("Failed to create container:", result.stderr)
+    else:
+        print("Container created successfully")
 
 while os.path.isfile(lock_file):
     if not pod_exists():
