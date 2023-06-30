@@ -80,3 +80,13 @@ check the contents of the registry
     curl -u mikael http://localhost:5000/v2/_catalog
     curl -u mikael http://localhost:5000/v2/debian/debian/tags/list
 
+## Troubleshooting
+
+If skopeo might be a pain, it has issues with authentication, then following might be a fix
+
+    rm /run/user/$(id -u)/containers/auth.json
+    podman logout localhost:5000
+    podman login localhost:5000
+    chmod 640  /run/user/$(id -u)/containers/auth.json
+    export XDG_RUNTIME_DIR=/run/user/$(id -u)
+
